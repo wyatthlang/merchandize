@@ -24,8 +24,6 @@ public class MerchController {
         dir.mkdirs();
       }
 
-      
-
       ProcessBuilder processBuilder = new ProcessBuilder(
         "yt-dlp",
         "-f mp4",
