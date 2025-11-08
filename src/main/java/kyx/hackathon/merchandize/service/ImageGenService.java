@@ -27,10 +27,8 @@ public class ImageGenService {
                     You are an artist creating stickers to be placed on merchandise based on the audio transcript and image frames from a video clip.
                     Use this audio transcription as a reference while generating the stickers: "%s"
                     Use this prompt as additional input from your user: "%s"
-                    #IMPORTANT If you identify a Comedian in the frame, include their name somewhere in the sticker.
                     #IMPORTANT You must generate an image. Only one sticker per file, you may provide multiple files. No glare visual artifacts on the images.
-                    #IMPORTANT Stickers should be fun, whimsical, and comedic.
-                    #IMPORTANT Use emojis and gen-z slang.
+                    #IMPORTANT Stickers should be fun, whimsical, and comedic. Use Gen-Z slang and emojis to up the vibe.
                     #IMPORTANT Make the background #000080 and include a high contrast border around the sticker. Do not over-use the background color inside the sticker.
                     #IMPORTANT Never surround text with only the #000080 background. Text should have a black outline to make it contrast.
                 """, request.getTranscription(), request.getPrompt());
