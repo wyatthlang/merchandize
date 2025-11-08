@@ -5,7 +5,7 @@ import lombok.Data;
 @Data
 public class VideoClip {
 
-    private String videoType;
+    private String videoSource;
     private String videoId;
     private String videoLink;
     private String startTime;

@@ -1,73 +1,68 @@
 package kyx.hackathon.merchandize.controller;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.util.UUID;
-
+import kyx.hackathon.merchandize.model.ImageGenRequest;
+import kyx.hackathon.merchandize.model.TranscriptionRequest;
 import kyx.hackathon.merchandize.model.VideoClip;
+import kyx.hackathon.merchandize.service.ImageGenService;
+import kyx.hackathon.merchandize.service.VideoDownloadService;
+import kyx.hackathon.merchandize.service.TranscriptionService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
+@RequiredArgsConstructor
 public class MerchController {
 
-  @PostMapping("/merch")
-  public void merch(@RequestBody VideoClip videoClip) throws Exception {
-    UUID id = UUID.randomUUID();
-    String outputDir = "/home/wyatthlang/Downloads/";
+    private final VideoDownloadService videoDownloadService;
+    private final TranscriptionService transcriptionService;
+    private final ImageGenService imageGenService;
 
-    if ("YOUTUBE".equals(videoClip.getVideoType())) {
-      File dir = new File(outputDir);
-      if (!dir.exists()) {
-        dir.mkdirs();
-      }
+    @PostMapping("/merch")
+    public void merch(@RequestBody VideoClip videoClip) throws Exception {
+        UUID id = UUID.randomUUID();
+        String outputDir = "/home/wyatthlang/Downloads/";
 
-      ProcessBuilder processBuilder = new ProcessBuilder(
-        "yt-dlp",
-        "-f mp4",
-        "-o", outputDir + id.toString() + ".mp4",
-        videoClip.getVideoLink()
-      );
+        if ("youtube".equals(videoClip.getVideoSource())) {
+            videoDownloadService.downloadYoutubeVideo(videoClip, outputDir, id);
+        }
 
-      processBuilder.redirectErrorStream();
+        var inputFilePath = outputDir + id.toString() + ".mp4";
+        var outputFilePath = outputDir + id.toString() + "-clip" + ".mp4";
 
-      var process = processBuilder.start();
+        videoDownloadService.clipVideo(videoClip, inputFilePath, outputFilePath);
 
-      BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-      String line;
-      while ((line = reader.readLine()) != null) {
-          System.out.println(line);
-      }
+        ProcessBuilder pb = new ProcessBuilder(
+                "ffmpeg",
+                "-i", inputFilePath,
+                "-ss", "00:00:01",
+                "-frames:v", "1",
+                outputDir + id.toString() + "-frame1.jpg"
+        );
 
-      int exitCode = process.waitFor();
-      System.out.println("yt-dlp exited with code: " + exitCode);
+        pb.redirectError();
+
+        var p = pb.start();
+        p.waitFor();
+
+        Resource resource = new FileSystemResource(outputFilePath);
+        TranscriptionRequest request = new TranscriptionRequest(resource, "transcribe what is said in the video");
+        var response = transcriptionService.transcribe(request);
+        var transcription = response.transcription();
+
+        System.out.println(transcription);
+
+        ImageGenRequest igr = new ImageGenRequest();
+        igr.setTranscription(transcription);
+        igr.setImgPath(outputDir + id.toString() + "-frame1.jpg");
+        var imgResponse = imageGenService.generate(igr);
+        System.out.println(imgResponse);
+
+
     }
-
-    var inputFilePath = outputDir + id.toString() + ".mp4";
-    var outputFilePath = outputDir + id.toString() + "-clip" + ".mp4";
-
-    ProcessBuilder pb = new ProcessBuilder(
-      "ffmpeg",
-      "-i", inputFilePath,
-      "-ss", videoClip.getStartTime(),
-      "-t", videoClip.getDuration(),
-      "-c", "copy",
-      outputFilePath
-    );
-
-    pb.redirectError();
-
-    var p = pb.start();
-
-    BufferedReader reader = new BufferedReader(new InputStreamReader(p.getInputStream()));
-      String line;
-      while ((line = reader.readLine()) != null) {
-          System.out.println(line);
-      }
-
-      int exitCode = p.waitFor();
-      System.out.println("ffmpeg exited with code: " + exitCode);
-  }
 }
