@@ -28,7 +28,7 @@ public class MerchController {
     private final ImageGenService imageGenService;
 
     @PostMapping("/merch")
-    public void merch(@RequestBody VideoClip videoClip) throws Exception {
+    public String merch(@RequestBody VideoClip videoClip) throws Exception {
         UUID id = UUID.randomUUID();
 
         if ("youtube".equals(videoClip.getVideoSource())) {
@@ -68,6 +68,6 @@ public class MerchController {
         var imgResponse = imageGenService.generate(igr, outputDir);
         System.out.println(imgResponse);
 
-
+        return imgResponse;
     }
 }

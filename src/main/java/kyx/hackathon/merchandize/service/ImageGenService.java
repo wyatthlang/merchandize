@@ -3,11 +3,13 @@ package kyx.hackathon.merchandize.service;
 import com.google.genai.Client;
 import com.google.genai.types.*;
 import kyx.hackathon.merchandize.model.ImageGenRequest;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -32,14 +34,17 @@ public class ImageGenService {
         var response = client.models.generateContent("gemini-2.5-flash-image", content, null);
 
         int counter = 0;
+        List<String> fileNames = new ArrayList();
         for (Candidate candidate : response.candidates().get()) {
             for (Part part : candidate.content().get().parts().get()) {
                 if (part.inlineData().isPresent() && part.inlineData().get().mimeType().get().startsWith("image/")) {
                     byte[] imageData = part.inlineData().get().data().get();
                     String mimeType = part.inlineData().get().mimeType().get();
 
-                    try (FileOutputStream fos = new FileOutputStream(outputDir + request.getId().toString() + "-" + counter++ + ".png")) {
+                    String fileName = outputDir + request.getId().toString() + "-" + counter++ + ".png";
+                    try (FileOutputStream fos = new FileOutputStream(fileName)) {
                         fos.write(imageData);
+                        fileNames.add(fileName);
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);
                     } catch (IOException e) {
@@ -49,7 +54,7 @@ public class ImageGenService {
             }
         }
 
-        return response.text();
+        return Strings.join(fileNames, ',');
     }
 
 }
