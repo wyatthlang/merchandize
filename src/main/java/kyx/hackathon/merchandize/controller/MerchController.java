@@ -81,6 +81,8 @@ public class MerchController {
         Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
         videoDownloadService.clipVideo(localUpload.getStartTime(), localUpload.getDuration(), inputFilePath, outputFilePath);
 
+
+
         return List.of();
     }
 }
