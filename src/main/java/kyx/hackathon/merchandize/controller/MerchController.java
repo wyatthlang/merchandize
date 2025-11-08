@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -28,6 +29,7 @@ public class MerchController {
     private final ImageGenService imageGenService;
 
     @PostMapping("/merch")
+    @CrossOrigin(origins = "*")
     public String merch(@RequestBody VideoClip videoClip) throws Exception {
         UUID id = UUID.randomUUID();
 
