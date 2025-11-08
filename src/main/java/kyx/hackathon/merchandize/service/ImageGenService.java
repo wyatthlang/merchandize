@@ -27,6 +27,7 @@ public class ImageGenService {
                     Use this audio transcription as a reference while generating the stickers: "%s"
                     Use this prompt as additional input from your user: "%s"
                     #IMPORTANT You must generate an image. Only one sticker per file, you may provide multiple files. No glare visual artifacts on the images.
+                    #IMPORTANT The background behind the sticker should always be #000080
                     #IMPORTANT Stickers should be fun, whimsical, and comedic.
                 """, request.getTranscription(), request.getPrompt());
 
