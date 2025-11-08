@@ -13,7 +13,7 @@ import java.util.List;
 @Service
 public class ImageGenService {
 
-    public String generate(ImageGenRequest request) {
+    public String generate(ImageGenRequest request, String outputDir) {
         Client client = Client.builder()
                 .apiKey(System.getenv("GOOGLE_API_KEY"))
                 .build();
@@ -37,7 +37,7 @@ public class ImageGenService {
                     byte[] imageData = part.inlineData().get().data().get();
                     String mimeType = part.inlineData().get().mimeType().get();
 
-                    try (FileOutputStream fos = new FileOutputStream("/home/wyatthlang/Downloads/" + request.getId().toString() + "-" + counter++ + ".png")) {
+                    try (FileOutputStream fos = new FileOutputStream(outputDir + request.getId().toString() + "-" + counter++ + ".png")) {
                         fos.write(imageData);
                     } catch (FileNotFoundException e) {
                         throw new RuntimeException(e);

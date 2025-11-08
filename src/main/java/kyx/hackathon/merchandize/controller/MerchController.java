@@ -7,6 +7,7 @@ import kyx.hackathon.merchandize.service.ImageGenService;
 import kyx.hackathon.merchandize.service.VideoDownloadService;
 import kyx.hackathon.merchandize.service.TranscriptionService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -19,6 +20,9 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class MerchController {
 
+    @Value("${image-directory}")
+    private String outputDir;
+
     private final VideoDownloadService videoDownloadService;
     private final TranscriptionService transcriptionService;
     private final ImageGenService imageGenService;
@@ -26,7 +30,6 @@ public class MerchController {
     @PostMapping("/merch")
     public void merch(@RequestBody VideoClip videoClip) throws Exception {
         UUID id = UUID.randomUUID();
-        String outputDir = "/home/wyatthlang/Downloads/";
 
         if ("youtube".equals(videoClip.getVideoSource())) {
             videoDownloadService.downloadYoutubeVideo(videoClip, outputDir, id);
@@ -60,7 +63,8 @@ public class MerchController {
         ImageGenRequest igr = new ImageGenRequest();
         igr.setTranscription(transcription);
         igr.setImgPath(outputDir + id.toString() + "-frame1.jpg");
-        var imgResponse = imageGenService.generate(igr);
+        igr.setId(id);
+        var imgResponse = imageGenService.generate(igr, outputDir);
         System.out.println(imgResponse);
 
 
