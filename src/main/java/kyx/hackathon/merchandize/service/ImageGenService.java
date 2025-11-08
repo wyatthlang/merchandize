@@ -1,9 +1,10 @@
 package kyx.hackathon.merchandize.service;
 
 import com.google.genai.Client;
-import com.google.genai.types.*;
+import com.google.genai.types.Candidate;
+import com.google.genai.types.Content;
+import com.google.genai.types.Part;
 import kyx.hackathon.merchandize.model.ImageGenRequest;
-import org.apache.logging.log4j.util.Strings;
 import org.springframework.stereotype.Service;
 
 import java.io.FileNotFoundException;
@@ -31,6 +32,7 @@ public class ImageGenService {
                     #IMPORTANT Stickers should be fun, whimsical, and comedic.
                     #IMPORTANT Use emojis and gen-z slang.
                     #IMPORTANT Make the background #000080 and include a high contrast border around the sticker. Do not over-use the background color inside the sticker.
+                    #IMPORTANT Never surround text with only the #000080 background. Text should have a black outline to make it contrast.
                 """, request.getTranscription(), request.getPrompt());
 
         var path = Paths.get(request.getImgPath());
