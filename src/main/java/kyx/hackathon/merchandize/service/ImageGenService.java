@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,9 +29,18 @@ public class ImageGenService {
                     #IMPORTANT You must generate an image, only one sticker per file, you may provide multiple files, no glare visual artifacts on the images.
                 """, request.getTranscription(), request.getPrompt());
 
+        var path = Paths.get(request.getImgPath());
+
+        byte[] bytes = null;
+        try {
+            bytes = Files.readAllBytes(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
         Content content = Content.fromParts(
-                Part.fromText(prompt)
-//                Part.fromUri("file:/" + request.getImgPath(), "image/jpeg")
+                Part.fromText(prompt),
+                Part.fromBytes(bytes, "image/jpeg")
         );
         var response = client.models.generateContent("gemini-2.5-flash-image", content, null);
 
@@ -39,10 +50,10 @@ public class ImageGenService {
             for (Part part : candidate.content().get().parts().get()) {
                 if (part.inlineData().isPresent() && part.inlineData().get().mimeType().get().startsWith("image/")) {
                     byte[] imageData = part.inlineData().get().data().get();
-                    String mimeType = part.inlineData().get().mimeType().get();
 
-                    String fileName = outputDir + request.getId().toString() + "-" + counter++ + ".png";
-                    try (FileOutputStream fos = new FileOutputStream(fileName)) {
+                    String fileName = request.getId().toString() + "-" + counter++ + ".png";
+                    String fullPath = outputDir + fileName;
+                    try (FileOutputStream fos = new FileOutputStream(fullPath)) {
                         fos.write(imageData);
                         fileNames.add(fileName);
                     } catch (FileNotFoundException e) {
