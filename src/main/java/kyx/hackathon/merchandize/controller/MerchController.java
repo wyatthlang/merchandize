@@ -1,20 +1,25 @@
 package kyx.hackathon.merchandize.controller;
 
 import kyx.hackathon.merchandize.model.ImageGenRequest;
+import kyx.hackathon.merchandize.model.LocalUpload;
 import kyx.hackathon.merchandize.model.TranscriptionRequest;
 import kyx.hackathon.merchandize.model.VideoClip;
 import kyx.hackathon.merchandize.service.ImageGenService;
-import kyx.hackathon.merchandize.service.VideoDownloadService;
 import kyx.hackathon.merchandize.service.TranscriptionService;
+import kyx.hackathon.merchandize.service.VideoDownloadService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
 
@@ -41,20 +46,9 @@ public class MerchController {
         var inputFilePath = outputDir + id.toString() + ".mp4";
         var outputFilePath = outputDir + id.toString() + "-clip" + ".mp4";
 
-        videoDownloadService.clipVideo(videoClip, inputFilePath, outputFilePath);
+        videoDownloadService.clipVideo(videoClip.getStartTime(), videoClip.getDuration(), inputFilePath, outputFilePath);
 
-        ProcessBuilder pb = new ProcessBuilder(
-                "ffmpeg",
-                "-i", inputFilePath,
-                "-ss", "00:00:01",
-                "-frames:v", "1",
-                outputDir + id.toString() + "-frame1.jpg"
-        );
-
-        pb.redirectError();
-
-        var p = pb.start();
-        p.waitFor();
+        videoDownloadService.generateFrameFromClip(outputFilePath, outputDir, id);
 
         Resource resource = new FileSystemResource(outputFilePath);
         TranscriptionRequest request = new TranscriptionRequest(resource, "transcribe what is said in the video");
@@ -72,5 +66,21 @@ public class MerchController {
         System.out.println(imgResponse);
 
         return imgResponse;
+    }
+
+    @PostMapping(value = "/local-upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public List<String> merch(@RequestParam MultipartFile file,
+                              @RequestParam LocalUpload localUpload) throws IOException, InterruptedException {
+        UUID id = UUID.randomUUID();
+
+        var inputFilePath = outputDir + id.toString() + ".mp4";
+        var outputFilePath = outputDir + id.toString() + "-clip" + ".mp4";
+
+        Path path = Paths.get(outputDir, file.getOriginalFilename());
+
+        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+        videoDownloadService.clipVideo(localUpload.getStartTime(), localUpload.getDuration(), inputFilePath, outputFilePath);
+
+        return List.of();
     }
 }

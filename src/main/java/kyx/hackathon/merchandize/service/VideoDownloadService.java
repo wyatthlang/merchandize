@@ -39,12 +39,12 @@ public class VideoDownloadService {
         System.out.println("yt-dlp exited with code: " + exitCode);
     }
 
-    public void clipVideo(VideoClip videoClip, String inputFilePath, String outputFilePath) throws IOException, InterruptedException {
+    public void clipVideo(String startTime, String duration, String inputFilePath, String outputFilePath) throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder(
                 "ffmpeg",
                 "-i", inputFilePath,
-                "-ss", videoClip.getStartTime(),
-                "-t", videoClip.getDuration(),
+                "-ss", startTime,
+                "-t", duration,
                 "-c", "copy",
                 outputFilePath
         );
@@ -61,6 +61,21 @@ public class VideoDownloadService {
 
         int exitCode = p.waitFor();
         System.out.println("ffmpeg exited with code: " + exitCode);
+    }
+
+    public void generateFrameFromClip(String inputFilePath, String outputDir, UUID id) throws IOException, InterruptedException {
+        ProcessBuilder pb = new ProcessBuilder(
+                "ffmpeg",
+                "-i", inputFilePath,
+                "-ss", "00:00:01",
+                "-frames:v", "1",
+                outputDir + id.toString() + "-frame1.jpg"
+        );
+
+        pb.redirectError();
+
+        var p = pb.start();
+        p.waitFor();
     }
 
 }
