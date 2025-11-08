@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: merchandize
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      audio:
+        transcription:
+          options:
+            model: whisper-1
+            language: en

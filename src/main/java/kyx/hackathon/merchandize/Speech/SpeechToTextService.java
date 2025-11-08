@@ -9,17 +9,17 @@ import org.Springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 
-public class SpeechToTextSercie {
+public class SpeechToTextService {
     
-    private final OpenAiService OpenAiService;
+    private final OpenAiService openAiService;
 
     //speaks with openAI
-    public SpeechToTextService(@value("${openai.api.key}") string apiKey){
-        this.openAiService= new OpenAiService(apiKey); 
+    public SpeechToTextService(@Value("${openai.api.key}") String apiKey){
+        this.openAiService = new OpenAiService(apiKey);
     }
 
     //sends WAV/MP3 audio to whisper and shoots back the text
-    public string transcribeAudio(File audioFile) {
+    public String transcribeAudio(File audioFile) {
         CreateTranscriptRequest request = CreateTranscriptRequest.builder()
             .model("whisper-1")
             .build();
