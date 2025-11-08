@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -30,7 +31,7 @@ public class MerchController {
 
     @PostMapping("/merch")
     @CrossOrigin(origins = "*")
-    public String merch(@RequestBody VideoClip videoClip) throws Exception {
+    public List<String> merch(@RequestBody VideoClip videoClip) throws Exception {
         UUID id = UUID.randomUUID();
 
         if ("youtube".equals(videoClip.getVideoSource())) {

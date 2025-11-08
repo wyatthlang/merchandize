@@ -15,7 +15,7 @@ import java.util.List;
 @Service
 public class ImageGenService {
 
-    public String generate(ImageGenRequest request, String outputDir) {
+    public List<String> generate(ImageGenRequest request, String outputDir) {
         Client client = Client.builder()
                 .apiKey(System.getenv("GOOGLE_API_KEY"))
                 .build();
@@ -54,7 +54,7 @@ public class ImageGenService {
             }
         }
 
-        return Strings.join(fileNames, ',');
+        return fileNames;
     }
 
 }
