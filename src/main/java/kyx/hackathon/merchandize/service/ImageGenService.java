@@ -23,10 +23,11 @@ public class ImageGenService {
                 .build();
 
         String prompt = String.format("""
-                    You are an artist creating stickers to be placed on merchandise based on the transcript and image frames from a video clip.
-                    Use this video transcription as a reference while generating the stickers: "%s"
+                    You are an artist creating stickers to be placed on merchandise based on the audio transcript and image frames from a video clip.
+                    Use this audio transcription as a reference while generating the stickers: "%s"
                     Use this prompt as additional input from your user: "%s"
-                    #IMPORTANT You must generate an image, only one sticker per file, you may provide multiple files, no glare visual artifacts on the images.
+                    #IMPORTANT You must generate an image. Only one sticker per file, you may provide multiple files. No glare visual artifacts on the images.
+                    #IMPORTANT Stickers should be fun, whimsical, and comedic.
                 """, request.getTranscription(), request.getPrompt());
 
         var path = Paths.get(request.getImgPath());
