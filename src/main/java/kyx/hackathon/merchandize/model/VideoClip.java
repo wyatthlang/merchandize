@@ -6,9 +6,9 @@ import lombok.Data;
 public class VideoClip {
 
     private String videoSource;
-    private String videoId;
     private String videoLink;
     private String startTime;
     private String duration;
+    private String prompt;
 
 }

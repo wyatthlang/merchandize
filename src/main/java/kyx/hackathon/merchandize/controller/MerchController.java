@@ -61,6 +61,7 @@ public class MerchController {
         System.out.println(transcription);
 
         ImageGenRequest igr = new ImageGenRequest();
+        igr.setPrompt(videoClip.getPrompt());
         igr.setTranscription(transcription);
         igr.setImgPath(outputDir + id.toString() + "-frame1.jpg");
         igr.setId(id);
